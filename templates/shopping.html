@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <table>
+
+    {% for obj in object_list %}
+        <tr>
+        <td>{{ obj.title }}</td> <td>Price {{ obj.price }} hrn.</td> <td>Total quantity: {{ obj.quantity }}</td>
+            {% if request.user.is_superuser %}
+                <td>
+                    <form action="{% url 'goods_update' pk=obj.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+
+            {% else %}
+                {% if buying_form %}
+                    <form method="post" action="{% url 'purchase' obj.id %}">
+                        {% csrf_token %}
+                        <td>{{ buying_form.as_p }}</td>
+    {#                    <td><input type="number" name="quantity" id="quantity{{ forloop.counter0 }}"></td>#}
+                        <td><button type="submit">Buy</button></td>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </tr>
+    {% endfor %}
+
+    </table>
+    
+    
+    
+{#            <form method="post" action="{% url 'delete_note' object.id %}">{% csrf_token %}#}
+{#            <button type="submit">DELETE</button>#}
+{#        </form>#}
+{#        <br>#}
+{#        <form method="post" action="{% url 'share_note' object.id %}">{% csrf_token %}#}
+{#            <button type="submit">#}
+{#                {% if object.is_shared %}Unshare{% else %}Share{% endif %}#}
+{#            </button>#}
+{#        </form>#}
+    
+    
+
+    <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+    </div>
+
+{% endblock content %}

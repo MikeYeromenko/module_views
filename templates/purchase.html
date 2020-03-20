@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <table>
+    <tr style="background-color: blanchedalmond">
+        {% for obj in column_names %}
+            <td>{{ obj }}</td>
+        {% endfor %}
+    </tr>
+    {% for obj in object_list %}
+        <tr style="background-color: aliceblue">
+            <form action="{% url 'return' obj.id %}" method="post">
+                {% csrf_token %}
+                <td>{{ obj.id_goods }}</td>
+                <td>{{ obj.quantity }}</td>
+                <td>{{ obj.total_price }}</td>
+                <td>{{ obj.date_time }}</td>
+                <td>{{ obj.was_returned }}</td>
+                <td>{{ obj.return_accepted }}</td>
+                {% if obj.was_returned %}
+                    <td style="background-color: white"><button type="submit">Cancell Return</button></td>
+                {% else %}
+                    <td style="background-color: white"><button type="submit">Return</button></td>
+                {% endif %}
+            </form>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock content %}

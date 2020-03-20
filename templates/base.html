@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% block login %}
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'logout' %}" style="background-color: bisque">Log out</a>
+        <a href="{% url 'shopping' %}" style="background-color: bisque">Go shopping</a>
+        <a href="{% url 'purchases' %}" style="background-color: bisque">Look my purchases</a>
+    {% else %}
+        <a href="{% url 'login' %}">Log in</a>
+        <a href="{% url 'registration' %}" style="background-color: coral">To registrate</a>
+    {% endif %}
+    <br>
+{% endblock login %}
+{% block user %}
+    {% if user.is_authenticated %}
+        You have {{ user.wallet }} hrn in your pocket)
+    {% endif %}
+    <br>
+{% endblock user %}
+<br>
+{% block messages %}
+    {% if messages %}
+<ul class="messages" style="background-color: aqua">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+        {{ message.tags }}: {{ message }} <br>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock messages %}
+{% block content %}
+{% endblock content %}
+</body>
+</html>
