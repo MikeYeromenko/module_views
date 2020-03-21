@@ -6,18 +6,27 @@
 </head>
 <body>
 {% block login %}
-    {% if request.user.is_authenticated %}
-        <a href="{% url 'logout' %}" style="background-color: bisque">Log out</a>
-        <a href="{% url 'shopping' %}" style="background-color: bisque">Go shopping</a>
-        <a href="{% url 'purchases' %}" style="background-color: bisque">Look my purchases</a>
-    {% else %}
-        <a href="{% url 'login' %}">Log in</a>
-        <a href="{% url 'registration' %}" style="background-color: coral">To registrate</a>
+    <div style="background-color: bisque">
+    {% if request.user.is_authenticated and not user.is_superuser %}
+        <a href="{% url 'logout' %}">___Log out___</a>
+        <a href="{% url 'shopping' %}">___Go shopping___</a>
+        <a href="{% url 'purchases' %}">___Look my purchases___</a>
+    {% endif %}
+    {% if user.is_anonymous %}
+        <a href="{% url 'login' %}">___Log in___</a>
+        <a href="{% url 'registration' %}">___Registration___</a></a>
+    {% endif %}
+    {% if request.user.is_superuser %}
+        <a href="{% url 'logout' %}">___Log out___</a>
+        <a href="{% url 'goods_add' %}">___Add goods___</a>
+        <a href="{% url 'shopping' %}">___Look goods___</a>
+        <a href="{% url 'goods_return' %}">___Look goods for return___</a>
     {% endif %}
     <br>
+    </div>
 {% endblock login %}
 {% block user %}
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and not user.is_superuser %}
         You have {{ user.wallet }} hrn in your pocket)
     {% endif %}
     <br>

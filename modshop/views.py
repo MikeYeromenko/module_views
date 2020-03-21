@@ -40,16 +40,6 @@ class LoginUser(LoginView):
         return reverse_lazy('shopping')
 
 
-# class LogoutUser(LoginRequiredMixin, LogoutView):
-#     # next_page = 'login/'
-#
-#     def get(self, request, *args, **kwargs):
-#         logout(request.user)
-#         return super(LogoutUser, self).get(request, *args, **kwargs)
-
-    # def get_template_names(self):
-    #     return reverse_lazy('login')
-
 @login_required
 def logout_user(request):
     logout(request)
@@ -69,14 +59,12 @@ class GoodsListView(ListView):
         return context
 
 
+# first decided to differ permissions using groups
 def system_permissions(groups):
     result = {}
     for group in groups:
         if str(group).lower() == 'users':
             result.update({'buying_form': BuyingForm})
-        # elif group == 'Editors':
-        #     result.update({'edit_form': EditForm})
-
     return result
 
 
@@ -189,17 +177,65 @@ class GoodsUpdateView(LoginRequiredMixin, UpdateView):
     form_class = GoodsUpdateForm
     template_name = 'update_goods.html'
     # fields = ['title', 'price', 'quantity', 'description']
-    success_url = 'goods_update/'
+    # success_url = 'goods_update/'
+    pk_url_kwarg = 'pk'
 
-    # def get_queryset(self):
-    #     if self.request.method == "POST":
-    #         pk = self.kwargs['pk']
-    #         return models.Goods.objects.filter(id=pk)
+    def get_success_url(self):
+        pk = self.kwargs.get('pk')
+        return reverse_lazy('goods_update', kwargs={'pk': pk})
 
-    # def get_object(self, queryset=None):
-    #     # get the existing object or created a new one
-    #     # obj, created = models.Goods.objects.get_or_create(col_1=self.kwargs['value_1'], col_2=self.kwargs['value_2'])
-    #     if self.request.method == "POST":
-    #         pk = self.kwargs['pk']
-    #         return models.Goods.objects.get(id=pk)
+    def form_valid(self, form):
+        self.object = form.save(user=self.request.user)
+        return super().form_valid(form)
 
+
+class GoodsCreateView(CreateView):
+    model = models.Goods
+    form_class = GoodsUpdateForm
+    template_name = 'update_goods.html'
+
+    def form_valid(self, form):
+        self.object = form.save(user=self.request.user)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('goods_add')
+
+
+class GoodsReturnAdminView(ListView):
+    model = models.Goods_Return
+    template_name = 'goods_return.html'
+
+    def get_queryset(self):
+        goods_return = models.Goods_Return.objects.prefetch_related('id_purchase').all()
+        return goods_return
+
+
+class WorkWithReturnView(LoginRequiredMixin, View):
+
+    def post(self, *args, **kwargs):
+        pk = kwargs.get('pk')
+        goods_return = get_object_or_404(models.Goods_Return, pk=pk)
+        id_purchase = goods_return.id_purchase_id
+        purchase = get_object_or_404(models.Purchase, pk=id_purchase)
+        id_goods = purchase.id_goods_id
+        goods = get_object_or_404(models.Goods, pk=id_goods)
+        id_user_bought = purchase.id_user_id
+        user_bought = get_object_or_404(models.MyUser, pk=id_user_bought)
+        if 'accept' in self.request.POST:
+            # returning quantity of goods bought to goods object
+            goods.quantity += purchase.quantity
+            goods.save()
+            # returning sum of money user paid
+            user_bought.wallet += purchase.total_price
+            user_bought.save()
+            # deleting a purchase
+            purchase.delete()
+        if 'refuse' in self.request.POST:
+            # when creating a Goods_Return we changed the status of was retuned to True
+            # now let's change it back to False
+            purchase.was_returned = False
+            purchase.save()
+            # deleting a goods_return object, because admin refused
+            goods_return.delete()
+        return HttpResponseRedirect(reverse_lazy('goods_return'))

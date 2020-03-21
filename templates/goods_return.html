@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <table style="text-align: center">
+        <tr>
+            <td>Goods title</td> <td>Quantity</td> <td>Total price</td> <td>Username</td> <td>Date/time of purchase</td>
+            <td>Date/time of returning</td>
+        </tr>
+        {% for object in object_list %}
+            <tr>
+                <form action="{% url 'return_decision' object.id %}" method="post">
+                    {% csrf_token %}
+                    <td>{{ object.id_purchase.id_goods.title }}</td>
+                    <td>{{ object.id_purchase.quantity }}</td>
+                    <td>{{ object.id_purchase.total_price }}</td>
+                    <td>{{ object.id_purchase.id_user.username }}</td>
+                    <td>{{ object.id_purchase.date_time }}</td>
+                    <td>{{ object.time_created }}</td>
+                    <td><button type="submit" name="accept">Accept</button></td>
+                    <td><button type="submit" name="refuse">Refuse</button></td>
+                </form>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock content %}

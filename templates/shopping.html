@@ -8,7 +8,7 @@
         <td>{{ obj.title }}</td> <td>Price {{ obj.price }} hrn.</td> <td>Total quantity: {{ obj.quantity }}</td>
             {% if request.user.is_superuser %}
                 <td>
-                    <form action="{% url 'goods_update' pk=obj.id %}" method="post">
+                    <form action="{% url 'goods_update' pk=obj.id %}" method="get">
                         {% csrf_token %}
                         <button type="submit">Update</button>
                     </form>

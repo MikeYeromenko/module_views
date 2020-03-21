@@ -30,6 +30,9 @@ urlpatterns = [
     path('purchase/<int:pk>/', views.PurchaseCreateView.as_view(), name='purchase'),
     path('purchases/', views.PurchesListView.as_view(), name='purchases'),
     path('return/<int:pk>/', views.GoodsReturnView.as_view(), name='return'),
-    path('goods_update/<int:pk>', views.GoodsUpdateView.as_view(), name='goods_update')
+    path('goods_update/<int:pk>/', views.GoodsUpdateView.as_view(), name='goods_update'),
     # path(r'^goods_update/(?P<pk>\d+)/$', views.GoodsUpdateView.as_view(), name='goods_update'),
+    path('goods_add/', views.GoodsCreateView.as_view(), name='goods_add'),
+    path('goods_return_list/', views.GoodsReturnAdminView.as_view(), name='goods_return'),
+    path('return_decision/<int:pk>/', views.WorkWithReturnView.as_view(), name='return_decision'),
 ]
